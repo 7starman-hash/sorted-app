@@ -151,12 +151,32 @@ function App() {
     });
   };
   const scrollRef = useRef(null);
+  const [installPrompt, setInstallPrompt] = useState(null);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, loading]);
+
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+    const handler = (e) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    await installPrompt.userChoice;
+    setInstallPrompt(null);
+  };
 
   const submitQuestion = async (questionText) => {
     const question = questionText.trim();
@@ -232,6 +252,30 @@ function App() {
           </button>
         )}
       </header>
+
+      {installPrompt && (
+        <div className="flex items-center justify-between gap-3 px-4 py-2" style={{ background: 'rgba(21,42,77,0.06)' }}>
+          <span className="text-xs" style={{ color: '#152A4D' }}>
+            Add Sorted to your home screen for one-tap access
+          </span>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={handleInstallClick}
+              className="wn-focus text-xs font-semibold px-3 py-1.5 rounded-full"
+              style={{ background: '#152A4D', color: '#EEF1F6' }}
+            >
+              Install
+            </button>
+            <button
+              onClick={() => setInstallPrompt(null)}
+              className="wn-focus opacity-50 hover:opacity-100"
+              aria-label="Dismiss"
+            >
+              <XIcon size={14} />
+            </button>
+          </div>
+        </div>
+      )}
 
       <a
         href="tel:10111"
