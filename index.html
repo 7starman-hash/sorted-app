@@ -142,6 +142,11 @@ function App() {
   const [landingQuery, setLandingQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState(null);
+  const [leadAskShown, setLeadAskShown] = useState(false);
+  const [showLeadAsk, setShowLeadAsk] = useState(false);
+  const [leadSubmitted, setLeadSubmitted] = useState(false);
+  const [leadForm, setLeadForm] = useState({ name: '', phone: '', email: '' });
+  const [leadContextQuestion, setLeadContextQuestion] = useState('');
 
   const handleCopy = (text, index) => {
     if (!navigator.clipboard) return;
@@ -205,6 +210,11 @@ function App() {
         throw new Error((data && data.error) || ('Request failed (' + response.status + ')'));
       }
       setMessages((prev) => [...prev, { role: 'assistant', content: data.reply || "Sorry, I couldn't work that out. Try asking again." }]);
+      if (!leadAskShown) {
+        setLeadAskShown(true);
+        setShowLeadAsk(true);
+        setLeadContextQuestion(question);
+      }
     } catch (err) {
       console.error('Chat error', err);
       const detail = err && err.message ? err.message : String(err);
@@ -212,6 +222,20 @@ function App() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleLeadSubmit = async () => {
+    if (!leadForm.phone.trim() && !leadForm.email.trim()) return;
+    try {
+      await fetch('https://sorted-backend-production.up.railway.app/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...leadForm, question: leadContextQuestion }),
+      });
+    } catch (err) {
+      console.error('Lead submit error', err);
+    }
+    setLeadSubmitted(true);
   };
 
   const handleModalSend = () => {
@@ -495,6 +519,65 @@ function App() {
               {loading && (
                 <div className="text-sm rounded-xl px-3.5 py-2.5 inline-flex" style={{ background: '#EEF1F6' }}>
                   <Loader2 size={14} className="animate-spin" />
+                </div>
+              )}
+              {showLeadAsk && !leadSubmitted && (
+                <div className="wn-card rounded-xl p-3.5" style={{ maxWidth: '85%' }}>
+                  <div className="text-sm font-semibold" style={{ color: '#152A4D' }}>
+                    Want a text with this?
+                  </div>
+                  <p className="text-xs opacity-70 mt-0.5 mb-2.5" style={{ color: '#152A4D' }}>
+                    Leave your number or email and we can follow up — totally optional.
+                  </p>
+                  <div className="space-y-1.5">
+                    <input
+                      value={leadForm.name}
+                      onChange={(e) => setLeadForm((f) => ({ ...f, name: e.target.value }))}
+                      placeholder="Name (optional)"
+                      className="wn-focus w-full text-xs px-2.5 py-2 rounded-lg outline-none"
+                      style={{ background: '#EEF1F6', border: '1px solid rgba(21,42,77,0.15)' }}
+                    />
+                    <input
+                      value={leadForm.phone}
+                      onChange={(e) => setLeadForm((f) => ({ ...f, phone: e.target.value }))}
+                      placeholder="Phone number"
+                      className="wn-focus w-full text-xs px-2.5 py-2 rounded-lg outline-none"
+                      style={{ background: '#EEF1F6', border: '1px solid rgba(21,42,77,0.15)' }}
+                    />
+                    <input
+                      value={leadForm.email}
+                      onChange={(e) => setLeadForm((f) => ({ ...f, email: e.target.value }))}
+                      placeholder="Email"
+                      className="wn-focus w-full text-xs px-2.5 py-2 rounded-lg outline-none"
+                      style={{ background: '#EEF1F6', border: '1px solid rgba(21,42,77,0.15)' }}
+                    />
+                  </div>
+                  <div className="flex gap-2 mt-2.5">
+                    <button
+                      onClick={handleLeadSubmit}
+                      disabled={!leadForm.phone.trim() && !leadForm.email.trim()}
+                      className="wn-focus text-xs font-semibold px-3 py-1.5 rounded-full"
+                      style={{
+                        background: '#152A4D',
+                        color: '#EEF1F6',
+                        opacity: !leadForm.phone.trim() && !leadForm.email.trim() ? 0.4 : 1,
+                      }}
+                    >
+                      Send
+                    </button>
+                    <button
+                      onClick={() => setShowLeadAsk(false)}
+                      className="wn-focus text-xs opacity-50 hover:opacity-100 px-3 py-1.5"
+                      style={{ color: '#152A4D' }}
+                    >
+                      No thanks
+                    </button>
+                  </div>
+                </div>
+              )}
+              {showLeadAsk && leadSubmitted && (
+                <div className="wn-card rounded-xl p-3.5 text-sm" style={{ maxWidth: '85%', color: '#152A4D' }}>
+                  Thanks — we'll be in touch if useful.
                 </div>
               )}
             </div>
