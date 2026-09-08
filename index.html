@@ -63,6 +63,8 @@ const Phone = (props) => (<IconBase {...props}><path d="M22 16.92v3a2 2 0 01-2.1
 
 const BRAND = "Sorted";
 
+const WHATSAPP_URL = 'https://wa.me/27785048467?text=' + encodeURIComponent('Hi, I need help with debt review — I found you through the Sorted app.');
+
 const PILLARS = [
   {
     id: 'motor',
@@ -109,7 +111,7 @@ const PILLARS = [
     handoff: {
       name: 'Solace Debt Counselling',
       body: 'NCR-registered debt counsellor (NCRDC3316), based in Cape Town, and meets clients face-to-face.',
-      url: 'https://wa.me/27785048467?text=' + encodeURIComponent('Hi, I need help with debt review — I found you through the Sorted app.'),
+      url: WHATSAPP_URL,
     },
   },
 ];
@@ -335,6 +337,25 @@ function App() {
               <Send size={16} />
             </button>
           </div>
+
+          <a
+            href={WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="wn-focus mt-6 flex items-center justify-between gap-3 p-4 rounded-2xl wn-rise"
+            style={{ background: '#152A4D', color: '#EEF1F6', border: '1px solid rgba(200,138,46,0.4)', animationDelay: '0.12s' }}
+          >
+            <div className="flex items-center gap-3">
+              <MessageCircle size={20} color="#C88A2E" className="shrink-0" />
+              <div>
+                <div className="font-semibold text-sm">Already dealing with debt?</div>
+                <div className="text-xs opacity-80 mt-0.5">Chat to an NCR-registered debt counsellor now</div>
+              </div>
+            </div>
+            <span className="text-xs font-semibold shrink-0" style={{ color: '#C88A2E' }}>
+              WhatsApp →
+            </span>
+          </a>
 
           <div className="mt-10 wn-rise" style={{ animationDelay: '0.18s' }}>
             <span className="wn-mono text-xs opacity-50">COMMON SITUATIONS</span>
