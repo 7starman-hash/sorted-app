@@ -226,6 +226,14 @@ function App() {
     }
   };
 
+  const trackClick = (event, source) => {
+    fetch('https://sorted-backend-production.up.railway.app/api/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event, source }),
+    }).catch(() => {});
+  };
+
   const handleLeadSubmit = async () => {
     if (!leadForm.phone.trim() && !leadForm.email.trim()) return;
     try {
@@ -342,6 +350,7 @@ function App() {
             href={WHATSAPP_URL}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackClick('whatsapp_click', 'homepage_banner')}
             className="wn-focus mt-6 flex items-center justify-between gap-3 p-4 rounded-2xl wn-rise"
             style={{ background: '#152A4D', color: '#EEF1F6', border: '1px solid rgba(200,138,46,0.4)', animationDelay: '0.12s' }}
           >
@@ -434,6 +443,7 @@ function App() {
               href={pillar.handoff.url}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackClick('whatsapp_click', 'debt_guide_handoff')}
               className="wn-focus mt-6 block rounded-2xl p-5 wn-rise"
               style={{ background: '#152A4D', color: '#EEF1F6', border: '1px solid rgba(200,138,46,0.4)' }}
             >
